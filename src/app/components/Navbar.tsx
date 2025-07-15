@@ -25,10 +25,10 @@ function Navbar() {
               <a href="/about" className="text-slate-600 hover:text-blue-600 transition-colors">About</a>
               <a href="#testimonials" className="text-slate-600 hover:text-blue-600 transition-colors">Reviews</a>
               <Button variant="outline" className="border-blue-200 text-blue-600 hover:bg-blue-50">
-                <a href="/login">Sign In</a>
+                <a href="/sign-in">Sign In</a>
               </Button>
               <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-                <a href="/signup">Get Started</a>
+                <a href="/sign-up">Get Started</a>
               </Button>
             </div>
 
@@ -52,10 +52,10 @@ function Navbar() {
               <a href="#testimonials" className="block text-slate-600 hover:text-blue-600 transition-colors">Reviews</a>
               <div className="flex flex-col space-y-2 pt-4">
                 <Button variant="outline" className="border-blue-200 text-blue-600 hover:bg-blue-50">
-                  <a href="/login">Sign In</a>
+                  <a href="/sign-in">Sign In</a>
                 </Button>
                 <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
-                  <a href="/signup">Get Started</a>
+                  <a href="/sign-up">Get Started</a>
                 </Button>
               </div>
             </div>

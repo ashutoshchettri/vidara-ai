@@ -10,8 +10,8 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: "E-Learning Platform",
-  description: "Learn, grow, and teach with powerful tools.",
+  title: "Vidara",
+  description: "Open Minds, Infinite Paths.",
 }
 
 export default function RootLayout({

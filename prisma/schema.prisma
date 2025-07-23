@@ -31,6 +31,7 @@ model User {
 
   courses     Course[]
   enrollments Enrollment[]
+  routines    Routine[] // ✅ Added this line
 }
 
 model Enrollment {
@@ -45,6 +46,35 @@ model Enrollment {
   createdAt DateTime @default(now())
 
   @@unique([studentId, courseId])
+}
+
+model Routine {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  description String
+  time        String
+  duration    String
+  status      String
+  color       String
+  tasks       String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  student   User   @relation(fields: [studentId], references: [id])
+  studentId String @db.ObjectId
+}
+
+model Mindmap {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  title         String
+  course        String?
+  lastModified  DateTime
+  nodes         Int
+  connections   Int
+  status        String
+  thumbnail     String?
+  jsonData      Json
+  studentId     String
 }
 
 enum Role {

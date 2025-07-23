@@ -16,8 +16,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
-import { User, Check, Eye, EyeOff, ArrowLeft, Sparkles, Brain, Mail, Lock } from 'lucide-react'
-import { Separator } from '@/components/ui/separator'
+import { Eye, EyeOff, ArrowLeft, Brain} from 'lucide-react'
 
 const formSchema = z
   .object({

@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { signIn, getSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -9,8 +10,7 @@ import {
   Mail,
   Lock,
   Eye,
-  EyeOff,
-  Sparkles
+  EyeOff
 } from 'lucide-react'
 
 import {
@@ -55,7 +55,7 @@ export default function SignInPage() {
         router.push('/dashboard')
       }
     } else {
-      setError('Invalid credentials')
+      setError("Invalid credentials")
       setLoading(false)
     }
   }
@@ -201,9 +201,9 @@ export default function SignInPage() {
 
             <div className="text-center text-sm text-slate-600">
               Don't have an account?{' '}
-              <a href="/sign-up" className="text-blue-600 hover:text-blue-700 font-medium transition-colors">
+              <Link href="/sign-up" className="text-blue-600 hover:text-blue-700 font-medium transition-colors">
                 Sign up for free
-              </a>
+              </Link>
             </div>
           </CardContent>
         </Card>

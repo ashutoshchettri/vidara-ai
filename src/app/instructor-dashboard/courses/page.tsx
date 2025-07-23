@@ -144,7 +144,7 @@ export default function InstructorCoursesPage() {
             </div>
             <Button
               className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
-              onClick={() => router.push('/instructor-dashboard')}
+              onClick={() => router.push('/instructor-dashboard/courses/createCourse')}
             >
               <Plus className="w-4 h-4 mr-2" />
               Create Course

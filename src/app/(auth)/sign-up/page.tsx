@@ -100,12 +100,12 @@ export default function SignUpPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name</Label>
-                  <Input id="firstName" {...register('firstName')} placeholder="John" />
+                  <Input id="firstName" {...register('firstName')} placeholder="First Name" />
                   {errors.firstName && <p className="text-xs text-red-500">{errors.firstName.message}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Last Name</Label>
-                  <Input id="lastName" {...register('lastName')} placeholder="Doe" />
+                  <Input id="lastName" {...register('lastName')} placeholder="Last Name" />
                   {errors.lastName && <p className="text-xs text-red-500">{errors.lastName.message}</p>}
                 </div>
               </div>

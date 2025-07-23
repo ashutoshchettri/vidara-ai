@@ -1,8 +1,8 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Loader2 } from 'lucide-react'
 
 type Props = {
   courseId: string
@@ -10,33 +10,37 @@ type Props = {
 }
 
 export default function EnrollButton({ courseId, enrolled }: Props) {
+  const [isEnrolled, setIsEnrolled] = useState(enrolled)
   const [loading, setLoading] = useState(false)
-  const router = useRouter()
 
   const handleEnroll = async () => {
     setLoading(true)
     const res = await fetch('/api/enroll', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ courseId }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
     })
 
-    setLoading(false)
+    const data = await res.json()
+
     if (res.ok) {
-      router.refresh() // Refresh to show "Enrolled"
+      setIsEnrolled(true)
     } else {
-      alert('Error enrolling in course.')
+      alert(data.error || 'Enrollment failed')
     }
+
+    setLoading(false)
   }
 
   return (
     <Button
       onClick={handleEnroll}
-      disabled={enrolled || loading}
+      disabled={loading || isEnrolled}
+      className="mt-4"
     >
-      {enrolled ? 'Already Enrolled' : loading ? 'Enrolling...' : 'Enroll Now'}
+      {loading ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : isEnrolled ? 'Enrolled' : 'Enroll Now'}
     </Button>
   )
 }

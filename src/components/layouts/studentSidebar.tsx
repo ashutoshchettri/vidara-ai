@@ -23,6 +23,7 @@ interface StudentSidebarProps {
 const sidebarItems = [
   { name: 'Dashboard', icon: LayoutDashboard, href: '/student-dashboard' },
   { name: 'Course', icon: BookOpen, href: '/student-dashboard/course' },
+  { name: 'Enrolled Courses', icon: BookOpen, href: '/student-dashboard/enrolled-courses' },
   { name: 'Routines', icon: Calendar, href: '/student-dashboard/routines' },
   { name: 'Mindmap', icon: GitBranch, href: '/student-dashboard/mindmap' },
   { name: 'Quiz', icon: HelpCircle, href: '/student-dashboard/quiz' },

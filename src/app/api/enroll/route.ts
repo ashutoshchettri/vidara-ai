@@ -1,39 +1,45 @@
-import { getAuthUser } from '@/lib/getAuthUser'
-import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
 export async function POST(req: Request) {
+  const session = await getServerSession(authOptions)
+
+  if (!session || session.user.role !== 'STUDENT') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { courseId } = await req.json()
+
+  if (!courseId) {
+    return NextResponse.json({ error: 'Missing courseId' }, { status: 400 })
+  }
+
   try {
-    const session = await getAuthUser()
-    const body = await req.json()
-    const { courseId } = body
-
-    if (session.user.role !== 'STUDENT') {
-      return NextResponse.json({ error: 'Only students can enroll' }, { status: 403 })
-    }
-
-    const exists = await prisma.enrollment.findUnique({
+    const alreadyEnrolled = await prisma.enrollment.findUnique({
       where: {
         studentId_courseId: {
-          studentId: session.user.id,
+          studentId: session.user.id!,
           courseId,
-        }
-      }
+        },
+      },
     })
 
-    if (exists) {
-      return NextResponse.json({ error: 'Already enrolled' }, { status: 409 })
+    if (alreadyEnrolled) {
+      return NextResponse.json({ message: 'Already enrolled' }, { status: 200 })
     }
 
     const enrollment = await prisma.enrollment.create({
       data: {
-        studentId: session.user.id,
+        studentId: session.user.id!,
         courseId,
-      }
+      },
     })
 
-    return NextResponse.json(enrollment, { status: 201 })
-  } catch (err) {
-    return NextResponse.json({ error: 'Unauthorized or error' }, { status: 401 })
+    return NextResponse.json({ enrollment }, { status: 201 })
+  } catch (error) {
+    console.error(error)
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
   }
 }

@@ -2,12 +2,16 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Sparkles, FileText as FileTextIcon, FileText, Image, Tag, AlertCircle, CheckCircle, LayoutDashboard, BookOpen, Settings } from 'lucide-react';
+import {
+  Plus, Sparkles, FileText as FileTextIcon, FileText,
+  Image, Tag, AlertCircle, CheckCircle,
+  LayoutDashboard, BookOpen
+} from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import InstructorSidebar from '@/components/layouts/instructorSidebar';
 import InstructorTopbar from '@/components/layouts/instructorTopbar';
@@ -17,31 +21,21 @@ export default function InstructorDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeItem, setActiveItem] = useState('Dashboard');
 
-  // Form states
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [thumbnail, setThumbnail] = useState('');
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [category, setCategory] = useState('');
+  const [curriculum, setCurriculum] = useState([{ title: '', videoUrl: '', pdfUrl: '', description: '' }]);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const sidebarItems = [
-    { name: 'Dashboard', icon: LayoutDashboard, href: '/instructor-dashboard' },
-    { name: 'My Courses', icon: BookOpen, href: '/instructor-dashboard/courses' },
-  ];
-
   const categories = [
-    'Programming',
-    'Web Development',
-    'Data Science',
-    'Mobile Development',
-    'UI/UX Design',
-    'Database',
-    'DevOps',
-    'Machine Learning',
-    'Cybersecurity',
-    'Cloud Computing',
+    'Programming', 'Web Development', 'Data Science', 'Mobile Development',
+    'UI/UX Design', 'Database', 'DevOps', 'Machine Learning',
+    'Cybersecurity', 'Cloud Computing'
   ];
 
   async function handleSubmit(e: React.FormEvent) {
@@ -51,10 +45,32 @@ export default function InstructorDashboard() {
     setSuccess('');
 
     try {
+      let finalThumbnail = thumbnail;
+
+      if (uploadedFile) {
+        const formData = new FormData();
+        formData.append('file', uploadedFile);
+
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!uploadRes.ok) throw new Error('Image upload failed');
+        const uploadData = await uploadRes.json();
+        finalThumbnail = uploadData.url;
+      }
+
       const res = await fetch('/api/courses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description, thumbnail, category }),
+        body: JSON.stringify({
+          title,
+          description,
+          thumbnail: finalThumbnail,
+          category,
+          curriculum,
+        }),
       });
 
       if (!res.ok) {
@@ -67,25 +83,12 @@ export default function InstructorDashboard() {
       setDescription('');
       setThumbnail('');
       setCategory('');
+      setUploadedFile(null);
+      setCurriculum([{ title: '', videoUrl: '', pdfUrl: '', description: '' }]);
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function handleLogout() {
-    try {
-      const res = await fetch('/api/auth/logout', {
-        method: 'POST',
-      });
-      if (res.ok) {
-        router.push('/sign-in');
-      } else {
-        console.error('Logout failed');
-      }
-    } catch (err) {
-      console.error('Logout error:', err);
     }
   }
 
@@ -102,7 +105,6 @@ export default function InstructorDashboard() {
 
         <main className="p-6">
           <div className="max-w-4xl mx-auto">
-            {/* Header */}
             <div className="text-center mb-8">
               <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Plus className="w-8 h-8 text-white" />
@@ -113,7 +115,6 @@ export default function InstructorDashboard() {
               </p>
             </div>
 
-            {/* Create Course Form */}
             <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-xl">
               <CardHeader className="text-center pb-6">
                 <CardTitle className="flex items-center justify-center text-2xl font-bold text-slate-900">
@@ -127,118 +128,180 @@ export default function InstructorDashboard() {
 
               <CardContent className="p-8">
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Course Title */}
+
                   <div className="space-y-2">
-                    <Label htmlFor="title" className="text-slate-700 font-medium flex items-center">
+                    <Label className="flex items-center font-medium text-slate-700">
                       <FileTextIcon className="w-4 h-4 mr-2 text-blue-600" />
                       Course Title
                     </Label>
                     <Input
-                      id="title"
-                      type="text"
-                      placeholder="e.g., Complete React Development Course"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
+                      placeholder="e.g., Advanced React Course"
                       required
-                      className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
                     />
                   </div>
 
-                  {/* Course Description */}
                   <div className="space-y-2">
-                    <Label htmlFor="description" className="text-slate-700 font-medium flex items-center">
+                    <Label className="flex items-center font-medium text-slate-700">
                       <FileText className="w-4 h-4 mr-2 text-blue-600" />
-                      Course Description
+                      Description
                     </Label>
                     <textarea
-                      id="description"
-                      placeholder="Describe what students will learn in this course..."
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
+                      placeholder="What will students learn?"
                       required
                       rows={4}
-                      className="w-full p-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 resize-none"
+                      className="w-full p-3 border border-slate-200 rounded-lg resize-none focus:ring-blue-500/20 focus:border-blue-500"
                     />
                   </div>
 
-                  {/* Thumbnail URL */}
                   <div className="space-y-2">
                     <Label htmlFor="thumbnail" className="text-slate-700 font-medium flex items-center">
                       <Image className="w-4 h-4 mr-2 text-blue-600" />
-                      Thumbnail Image URL
+                      Thumbnail (URL or Upload)
                     </Label>
                     <Input
-                      id="thumbnail"
                       type="url"
-                      placeholder="https://example.com/course-thumbnail.jpg"
+                      placeholder="https://example.com/thumbnail.jpg"
                       value={thumbnail}
-                      onChange={(e) => setThumbnail(e.target.value)}
-                      required
-                      className="h-12 border-slate-200 focus:border-blue-500 focus:ring-blue-500/20"
+                      onChange={(e) => {
+                        setThumbnail(e.target.value);
+                        setUploadedFile(null);
+                      }}
+                      className="h-12 border-slate-200"
                     />
-                    {thumbnail && (
-                      <div className="mt-3">
-                        <p className="text-sm text-slate-600 mb-2">Preview:</p>
-                        <img 
-                          src={thumbnail} 
-                          alt="Course thumbnail preview" 
-                          className="w-32 h-20 object-cover rounded-lg border border-slate-200"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
-                      </div>
-                    )}
+                    <div className="text-center text-slate-600 text-sm">or</div>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setUploadedFile(file);
+                          setThumbnail('');
+                        }
+                      }}
+                      className="h-12 border-slate-200"
+                    />
+                    {thumbnail ? (
+                      <img src={thumbnail} alt="Preview" className="w-32 h-20 object-cover mt-2 rounded-md" />
+                    ) : uploadedFile ? (
+                      <img src={URL.createObjectURL(uploadedFile)} alt="Preview" className="w-32 h-20 object-cover mt-2 rounded-md" />
+                    ) : null}
                   </div>
 
-                  {/* Category */}
                   <div className="space-y-2">
-                    <Label htmlFor="category" className="text-slate-700 font-medium flex items-center">
+                    <Label className="flex items-center font-medium text-slate-700">
                       <Tag className="w-4 h-4 mr-2 text-blue-600" />
                       Category
                     </Label>
                     <select
-                      id="category"
                       value={category}
                       onChange={(e) => setCategory(e.target.value)}
                       required
-                      className="w-full h-12 px-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-white"
+                      className="w-full h-12 px-3 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 bg-white"
                     >
-                      <option value="">Select a category</option>
+                      <option value="">Select category</option>
                       {categories.map((cat) => (
                         <option key={cat} value={cat}>{cat}</option>
                       ))}
                     </select>
                   </div>
 
-                  {/* Error and Success Messages */}
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-slate-800">Course Curriculum</h3>
+                    {curriculum.map((item, index) => (
+                      <div key={index} className="border border-slate-200 p-4 rounded-md bg-white shadow-sm space-y-3">
+                        <div>
+                          <Label>Topic Title</Label>
+                          <Input
+                            type="text"
+                            value={item.title}
+                            onChange={(e) => {
+                              const copy = [...curriculum];
+                              copy[index].title = e.target.value;
+                              setCurriculum(copy);
+                            }}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <Label>Video URL (optional)</Label>
+                          <Input
+                            type="url"
+                            value={item.videoUrl}
+                            onChange={(e) => {
+                              const copy = [...curriculum];
+                              copy[index].videoUrl = e.target.value;
+                              setCurriculum(copy);
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <Label>PDF/Resource URL (optional)</Label>
+                          <Input
+                            type="url"
+                            value={item.pdfUrl}
+                            onChange={(e) => {
+                              const copy = [...curriculum];
+                              copy[index].pdfUrl = e.target.value;
+                              setCurriculum(copy);
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <Label>Topic Description</Label>
+                          <textarea
+                            value={item.description}
+                            onChange={(e) => {
+                              const copy = [...curriculum];
+                              copy[index].description = e.target.value;
+                              setCurriculum(copy);
+                            }}
+                            rows={3}
+                            placeholder="Write a brief explanation about this topic..."
+                            className="w-full p-2 border border-slate-200 rounded-md focus:ring focus:ring-blue-200"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => setCurriculum(curriculum.filter((_, i) => i !== index))}
+                        >
+                          Remove Topic
+                        </Button>
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setCurriculum([...curriculum, { title: '', videoUrl: '', pdfUrl: '', description: '' }])}
+                    >
+                      + Add New Topic
+                    </Button>
+                  </div>
+
                   {error && (
-                    <div className="flex items-center p-4 bg-red-50 border border-red-200 rounded-lg">
-                      <AlertCircle className="w-5 h-5 text-red-600 mr-3 flex-shrink-0" />
-                      <p className="text-red-700">{error}</p>
+                    <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-md flex items-center gap-2">
+                      <AlertCircle className="w-5 h-5" /> {error}
                     </div>
                   )}
-
                   {success && (
-                    <div className="flex items-center p-4 bg-green-50 border border-green-200 rounded-lg">
-                      <CheckCircle className="w-5 h-5 text-green-600 mr-3 flex-shrink-0" />
-                      <p className="text-green-700">{success}</p>
+                    <div className="p-3 bg-green-50 border border-green-200 text-green-700 rounded-md flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5" /> {success}
                     </div>
                   )}
 
-                  {/* Submit Button */}
                   <Button
                     type="submit"
                     disabled={loading}
-                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]"
+                    className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-md hover:shadow-lg"
                   >
-                    {loading ? (
-                      <div className="flex items-center space-x-2">
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        <span>Creating Course...</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center space-x-2">
+                    {loading ? 'Creating...' : (
+                      <div className="flex items-center gap-2">
                         <Plus className="w-5 h-5" />
                         <span>Create Course</span>
                       </div>
@@ -250,14 +313,6 @@ export default function InstructorDashboard() {
           </div>
         </main>
       </div>
-
-      {/* Mobile Sidebar Overlay */}
-      {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
     </div>
   );
 }

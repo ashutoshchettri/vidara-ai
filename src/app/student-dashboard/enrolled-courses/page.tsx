@@ -88,7 +88,7 @@ export default function EnrolledCoursesPage() {
                 : 'space-y-4'
             }>
               {courses.map(course => (
-                <Link key={course.id} href={`/student-dashboard/course/${course.id}`} passHref legacyBehavior>
+                <Link key={course.id} href={`/student-dashboard/course/${course.id}/`} passHref legacyBehavior>
                   <a>
                     <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 bg-white/80 backdrop-blur-sm overflow-hidden cursor-pointer">
                       {viewMode === 'grid' ? (

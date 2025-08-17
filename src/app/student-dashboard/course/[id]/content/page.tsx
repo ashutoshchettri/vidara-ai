@@ -12,7 +12,7 @@ type Lesson = {
 }
 
 type Module = {
-  moduleTitle: string
+  title: string
   lessons: Lesson[]
 }
 
@@ -20,7 +20,7 @@ export default function CourseContentPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { id: courseId } = useParams()
-  const [content, setContent] = useState<Module[]>([])
+  const [curriculum, setCurriculum] = useState<Module[]>([])
 
   useEffect(() => {
     if (status === 'unauthenticated') router.push('/sign-in')
@@ -31,7 +31,7 @@ export default function CourseContentPage() {
       const res = await fetch(`/api/courses/${courseId}/content`)
       if (res.ok) {
         const data = await res.json()
-        setContent(data.content || [])
+        setCurriculum(data.curriculum || [])
       }
     }
 
@@ -42,10 +42,10 @@ export default function CourseContentPage() {
     <div className="p-8 max-w-5xl mx-auto space-y-6">
       <h1 className="text-3xl font-bold">Course Content</h1>
 
-      {content.map((module, i) => (
+      {curriculum.map((module, i) => (
         <Card key={i}>
           <CardContent className="space-y-2 p-6">
-            <h2 className="text-xl font-semibold text-blue-800">{module.moduleTitle}</h2>
+            <h2 className="text-xl font-semibold text-blue-800">{module.title}</h2>
             <ul className="space-y-3">
               {module.lessons.map((lesson, j) => (
                 <li key={j} className="border p-3 rounded-md bg-slate-50">

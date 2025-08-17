@@ -26,7 +26,6 @@ const sidebarItems = [
   { name: 'Enrolled Courses', icon: BookOpen, href: '/student-dashboard/enrolled-courses' },
   { name: 'Routines', icon: Calendar, href: '/student-dashboard/routines' },
   { name: 'Mindmap', icon: GitBranch, href: '/student-dashboard/mindmap' },
-  { name: 'Quiz', icon: HelpCircle, href: '/student-dashboard/quiz' },
 ]
 
 export default function StudentSidebar({ sidebarOpen, setSidebarOpen, activeItem }: StudentSidebarProps) {
